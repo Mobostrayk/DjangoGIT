@@ -1,24 +1,14 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Post
+from django.shortcuts import render, get_object_or_404
 
 def home_view(request):
-    return HttpResponse("<h1>Добро пожаловать в мой блог!</h1>")
+    return render(request, 'posts/base.html')
 
 def post_list_view(request):
     posts = Post.objects.all()
-    html = "<h1>Все посты</h1><ul>"
-    for post in posts:
-        html += f"<li><strong>{post.title}</strong>: {post.content[:50]}...</li>"
-    html += "</ul>"
-    return HttpResponse(html)
+    return render(request, 'posts/post_list.html', {'posts': posts})
+
 def post_detail_view(request, post_id):
-    try:
-        post = Post.objects.get(id=post_id)
-        html = f"<h1>{post.title}</h1><p>{post.content}</p><p><strong>Автор:</strong> {post.author}</p>"
-        return HttpResponse(html)
-    except Post.DoesNotExist:
-        return HttpResponse("<h1>Пост не найден</h1>", status=404)
-    
-def about_view(request):
-    return HttpResponse("<h1>Об авторе</h1><p>Привет! Я автор этого блога.</p>")
+    post = get_object_or_404(Post, id=post_id)
+    return render(request, 'posts/post_detail.html', {'post': post})
