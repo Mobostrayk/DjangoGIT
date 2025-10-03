@@ -41,3 +41,31 @@ class PostViewTest(TestCase):
         response = self.client.get('/posts/')
         self.assertContains(response, "Тест 1")
         self.assertContains(response, "Тест 2")
+
+class PostDetailViewTest(TestCase): 
+
+    def setUp(self):
+        self.client = Client()
+        self.post = Post.objects.create(
+            title="Тестовый пост", 
+            content="Тестовое содержимое",
+            author="Тестовый автор"
+        )
+
+    def test_post_detail_view_status(self):
+        """Проверка, что страница детального просмотра возвращает статус 200"""
+        response = self.client.get(f'/posts/{self.post.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_detail_view_content(self):
+        """Проверка, что на странице отображается заголовок поста"""
+        response = self.client.get(f'/posts/{self.post.id}/')
+        self.assertContains(response, "Тестовый пост")
+        self.assertContains(response, "Тестовый автор")
+
+    def test_post_detail_view_not_found(self):
+        """Проверка поведения при запросе несуществующего поста"""
+        response = self.client.get('/posts/999/') 
+        self.assertEqual(response.status_code, 404)
+        content = response.content.decode('utf-8')
+        self.assertIn("Пост не найден", content)
